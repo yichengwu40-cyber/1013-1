@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESP32 智慧光控感測儀表板</title>
+    <title>ESP32 WS2812 智慧光控與燈條儀表板</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -18,11 +18,12 @@
                         neonCyan: '#06b6d4',
                         neonBlue: '#3b82f6',
                         neonPurple: '#a855f7',
-                        neonAmber: '#f59e0b'
+                        neonAmber: '#f59e0b',
+                        neonPink: '#ec4899'
                     },
                     boxShadow: {
                         'neon': '0 0 20px rgba(6, 182, 212, 0.25)',
-                        'neon-glow': '0 0 25px rgba(59, 130, 246, 0.4)',
+                        'neon-glow': '0 0 25px rgba(236, 72, 153, 0.4)',
                         'amber-glow': '0 0 25px rgba(245, 158, 11, 0.4)'
                     }
                 }
@@ -59,21 +60,21 @@
         }
     </style>
 </head>
-<body class="min-h-screen bg-darkBg flex flex-col justify-between selection:bg-cyan-500 selection:text-white">
+<body class="min-h-screen bg-darkBg flex flex-col justify-between selection:bg-pink-500 selection:text-white">
 
     <header class="border-b border-gray-800 bg-cardBg/80 backdrop-blur-md sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-neon">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-pink-500 to-purple-600 flex items-center justify-center shadow-neon">
                     <i class="fa-solid fa-microchip text-white text-lg"></i>
                 </div>
                 <div>
-                    <h1 class="font-orbitron font-extrabold text-xl tracking-wider bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">ESP32 IOT LAB</h1>
-                    <p class="text-xs text-gray-400">GPIO39 LDR | GPIO34 Potentiometer | GPIO12 LED PWM</p>
+                    <h1 class="font-orbitron font-extrabold text-xl tracking-wider bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">ESP32 WS2812 LAB</h1>
+                    <p class="text-xs text-gray-400">GPIO39 LDR | GPIO34 Pot | GPIO26 WS2812 (3 LEDs)</p>
                 </div>
             </div>
             <div class="flex items-center space-x-3">
-                <button id="connectSerialBtn" onclick="toggleSerialConnection()" class="flex items-center space-x-2 px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-medium text-sm transition-all shadow-neon">
+                <button id="connectSerialBtn" onclick="toggleSerialConnection()" class="flex items-center space-x-2 px-4 py-2 rounded-xl bg-pink-600 hover:bg-pink-500 text-white font-medium text-sm transition-all shadow-lg">
                     <i class="fa-solid fa-usb"></i>
                     <span id="serialBtnText">連線硬體 (WebSerial)</span>
                 </button>
@@ -88,14 +89,14 @@
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
         <!-- Top Notification Banner -->
-        <div class="bg-gradient-to-r from-blue-900/40 via-cyan-900/30 to-purple-900/40 border border-cyan-500/30 rounded-2xl p-4 sm:p-6 flex flex-col md:flex-row items-center justify-between gap-4 shadow-lg backdrop-blur-sm">
+        <div class="bg-gradient-to-r from-purple-900/40 via-pink-900/30 to-blue-900/40 border border-pink-500/30 rounded-2xl p-4 sm:p-6 flex flex-col md:flex-row items-center justify-between gap-4 shadow-lg backdrop-blur-sm">
             <div class="flex items-center space-x-4">
-                <div class="w-12 h-12 rounded-full bg-cyan-500/20 border border-cyan-400 flex items-center justify-center flex-shrink-0 text-cyan-400 text-xl">
-                    <i class="fa-solid fa-lightbulb"></i>
+                <div class="w-12 h-12 rounded-full bg-pink-500/20 border border-pink-400 flex items-center justify-center flex-shrink-0 text-pink-400 text-xl">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
                 </div>
                 <div>
-                    <h2 class="font-bold text-lg text-white">智慧光控互動模擬機制</h2>
-                    <p class="text-sm text-gray-300">系統核心邏輯：<span class="text-cyan-400 font-semibold">環境光線越暗（光感測器數值越低），LED 脈衝寬度調變 (PWM) 亮度越強。</span> 您可使用下方滑桿即時模擬或透過實體硬體連線。</p>
+                    <h2 class="font-bold text-lg text-white">WS2812 智慧炫彩光控互動系統</h2>
+                    <p class="text-sm text-gray-300">核心邏輯：<span class="text-pink-400 font-semibold">環境光線越暗（光感測器數值越低），接在 GPIO26 的 3 顆 WS2812 燈珠亮度隨之增強，並呈現呼吸彩虹動態！</span></p>
                 </div>
             </div>
             <div class="flex items-center space-x-2 bg-black/40 px-4 py-2 rounded-xl border border-gray-800">
@@ -111,9 +112,9 @@
             <div class="space-y-6">
                 <!-- Simulation Controls -->
                 <div class="bg-cardBg border border-cardBorder rounded-2xl p-6 shadow-xl relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-cyan-500/5 rounded-full blur-2xl pointer-events-none"></div>
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-pink-500/5 rounded-full blur-2xl pointer-events-none"></div>
                     <h3 class="font-orbitron font-semibold text-base text-white mb-4 flex items-center space-x-2">
-                        <i class="fa-solid fa-sliders text-cyan-400"></i>
+                        <i class="fa-solid fa-sliders text-pink-400"></i>
                         <span>互動控制面板</span>
                     </h3>
 
@@ -124,9 +125,9 @@
                                 <i class="fa-solid fa-sun text-amber-400"></i>
                                 <span>環境光線 (GPIO39 LDR)</span>
                             </span>
-                            <span id="ldrValText" class="font-orbitron text-cyan-400 font-bold">2048</span>
+                            <span id="ldrValText" class="font-orbitron text-pink-400 font-bold">2048</span>
                         </div>
-                        <input id="ldrSlider" type="range" min="0" max="4095" value="2048" oninput="updateSimulation()" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-cyan-400">
+                        <input id="ldrSlider" type="range" min="0" max="4095" value="2048" oninput="updateSimulation()" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-pink-400">
                         <div class="flex justify-between text-[10px] text-gray-500">
                             <span>完全黑暗 (0)</span>
                             <span>強烈強光 (4095)</span>
@@ -138,7 +139,7 @@
                         <div class="flex justify-between items-center text-sm">
                             <span class="text-gray-300 flex items-center space-x-2">
                                 <i class="fa-solid fa-gauge-high text-purple-400"></i>
-                                <span>可變電阻靈敏度 (GPIO34)</span>
+                                <span>可變電阻 (GPIO34)</span>
                             </span>
                             <span id="potValText" class="font-orbitron text-purple-400 font-bold">2048</span>
                         </div>
@@ -149,17 +150,25 @@
                         </div>
                     </div>
 
-                    <!-- Calculated LED Status Card -->
-                    <div class="bg-black/40 border border-gray-800 rounded-xl p-4 flex items-center justify-between">
-                        <div>
-                            <span class="text-xs text-gray-400 block">計算後 LED 亮度 (GPIO12 PWM)</span>
-                            <span id="pwmValText" class="font-orbitron text-2xl font-extrabold text-amber-400">128</span>
-                            <span class="text-xs text-gray-500"> / 255</span>
+                    <!-- WS2812 Visual LED Strip Preview -->
+                    <div class="bg-black/40 border border-gray-800 rounded-xl p-4 space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-gray-400">WS2812 燈條模擬 (GPIO26, 3燈珠)</span>
+                            <span id="pwmValText" class="font-orbitron text-sm font-bold text-pink-400">亮度: 128/255</span>
                         </div>
-                        <!-- Visual LED Glow Preview -->
-                        <div id="ledPreviewOrb" class="w-14 h-14 rounded-full bg-amber-500/20 border-2 border-amber-400 flex items-center justify-center shadow-amber-glow transition-all duration-200">
-                            <i class="fa-solid fa-lightbulb text-amber-400 text-2xl"></i>
+                        <!-- 3 WS2812 LEDs -->
+                        <div class="flex justify-center items-center space-x-4 py-2">
+                            <div id="wsLed0" class="w-12 h-12 rounded-full border-2 border-pink-400/60 flex items-center justify-center transition-all duration-150 shadow-lg">
+                                <i class="fa-solid fa-lightbulb text-white text-lg drop-shadow"></i>
+                            </div>
+                            <div id="wsLed1" class="w-12 h-12 rounded-full border-2 border-purple-400/60 flex items-center justify-center transition-all duration-150 shadow-lg">
+                                <i class="fa-solid fa-lightbulb text-white text-lg drop-shadow"></i>
+                            </div>
+                            <div id="wsLed2" class="w-12 h-12 rounded-full border-2 border-cyan-400/60 flex items-center justify-center transition-all duration-150 shadow-lg">
+                                <i class="fa-solid fa-lightbulb text-white text-lg drop-shadow"></i>
+                            </div>
                         </div>
+                        <div class="text-[10px] text-center text-gray-400">RGB 炫彩呼吸效果同步預覽</div>
                     </div>
                 </div>
 
@@ -168,10 +177,10 @@
                     <div class="bg-cardBg border border-cardBorder rounded-2xl p-5 shadow-lg">
                         <div class="flex items-center justify-between mb-3">
                             <span class="text-xs text-gray-400">光敏電阻 ADC</span>
-                            <i class="fa-solid fa-bolt text-cyan-400"></i>
+                            <i class="fa-solid fa-bolt text-pink-400"></i>
                         </div>
                         <div class="font-orbitron text-2xl font-bold text-white" id="statLdr">2048</div>
-                        <div class="text-[11px] text-cyan-400 mt-1"><span>ADC1_CH3 (GPIO39)</span></div>
+                        <div class="text-[11px] text-pink-400 mt-1"><span>ADC1_CH3 (GPIO39)</span></div>
                     </div>
                     <div class="bg-cardBg border border-cardBorder rounded-2xl p-5 shadow-lg">
                         <div class="flex items-center justify-between mb-3">
@@ -190,13 +199,13 @@
                 <div class="bg-cardBg border border-cardBorder rounded-2xl p-6 shadow-xl">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="font-orbitron font-semibold text-base text-white flex items-center space-x-2">
-                            <i class="fa-solid fa-chart-line text-cyan-400"></i>
-                            <span>即時感測數值趨勢圖 (Real-time Telemetry)</span>
+                            <i class="fa-solid fa-chart-line text-pink-400"></i>
+                            <span>即時感測數值趨勢圖 (Telemetry)</span>
                         </h3>
                         <div class="flex items-center space-x-4 text-xs">
-                            <div class="flex items-center space-x-1.5"><span class="w-3 h-3 rounded-full bg-cyan-400 inline-block"></span><span class="text-gray-300">LDR (GPIO39)</span></div>
+                            <div class="flex items-center space-x-1.5"><span class="w-3 h-3 rounded-full bg-pink-400 inline-block"></span><span class="text-gray-300">LDR (GPIO39)</span></div>
                             <div class="flex items-center space-x-1.5"><span class="w-3 h-3 rounded-full bg-purple-400 inline-block"></span><span class="text-gray-300">可變電阻 (GPIO34)</span></div>
-                            <div class="flex items-center space-x-1.5"><span class="w-3 h-3 rounded-full bg-amber-400 inline-block"></span><span class="text-gray-300">LED PWM (GPIO12)</span></div>
+                            <div class="flex items-center space-x-1.5"><span class="w-3 h-3 rounded-full bg-cyan-400 inline-block"></span><span class="text-gray-300">WS2812 亮度</span></div>
                         </div>
                     </div>
                     <div class="h-64 sm:h-72 w-full relative">
@@ -207,19 +216,19 @@
                 <!-- Schematic & Wiring Guide -->
                 <div class="bg-cardBg border border-cardBorder rounded-2xl p-6 shadow-xl">
                     <h3 class="font-orbitron font-semibold text-base text-white mb-4 flex items-center space-x-2">
-                        <i class="fa-solid fa-network-wired text-cyan-400"></i>
-                        <span>ESP32 硬體接線對照表</span>
+                        <i class="fa-solid fa-network-wired text-pink-400"></i>
+                        <span>ESP32 硬體接線對照表 (含 WS2812)</span>
                     </h3>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                         <div class="bg-black/30 border border-gray-800 rounded-xl p-4">
-                            <div class="font-bold text-cyan-400 mb-1 flex items-center space-x-2">
+                            <div class="font-bold text-pink-400 mb-1 flex items-center space-x-2">
                                 <i class="fa-solid fa-sun"></i>
                                 <span>光感測器 (LDR)</span>
                             </div>
-                            <p class="text-xs text-gray-400 mb-2">分壓電路設計：</p>
+                            <p class="text-xs text-gray-400 mb-2">分壓電路：</p>
                             <ul class="text-xs space-y-1 text-gray-300">
                                 <li>• 一端接 <span class="text-amber-400 font-semibold">3.3V</span></li>
-                                <li>• 另一端接 <span class="text-cyan-400 font-semibold">GPIO39 (VN)</span></li>
+                                <li>• 另一端接 <span class="text-pink-400 font-semibold">GPIO39 (VN)</span></li>
                                 <li>• 跨接 10k 下拉電阻至 <span class="text-gray-400">GND</span></li>
                             </ul>
                         </div>
@@ -228,21 +237,22 @@
                                 <i class="fa-solid fa-sliders"></i>
                                 <span>可變電阻 (Potentiometer)</span>
                             </div>
-                            <p class="text-xs text-gray-400 mb-2">分壓滑動端接腳：</p>
+                            <p class="text-xs text-gray-400 mb-2">分壓滑動端：</p>
                             <ul class="text-xs space-y-1 text-gray-300">
-                                <li>• 兩側接腳分別接 <span class="text-amber-400">3.3V</span> 與 <span class="text-gray-400">GND</span></li>
+                                <li>• 兩側接腳接 <span class="text-amber-400">3.3V</span> 與 <span class="text-gray-400">GND</span></li>
                                 <li>• 中心訊號腳接 <span class="text-purple-400 font-semibold">GPIO34</span></li>
                             </ul>
                         </div>
                         <div class="bg-black/30 border border-gray-800 rounded-xl p-4">
-                            <div class="font-bold text-amber-400 mb-1 flex items-center space-x-2">
-                                <i class="fa-solid fa-lightbulb"></i>
-                                <span>LED 輸出模組</span>
+                            <div class="font-bold text-cyan-400 mb-1 flex items-center space-x-2">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                <span>WS2812 燈條 (3顆)</span>
                             </div>
-                            <p class="text-xs text-gray-400 mb-2">PWM 控制驅動：</p>
+                            <p class="text-xs text-gray-400 mb-2">數位控制腳位：</p>
                             <ul class="text-xs space-y-1 text-gray-300">
-                                <li>• 正極（長腳）經 220Ω 接 <span class="text-amber-400 font-semibold">GPIO12</span></li>
-                                <li>• 負極（短腳）接 <span class="text-gray-400">GND</span></li>
+                                <li>• VCC / 5V 接 <span class="text-amber-400 font-semibold">5V (或 3.3V)</span></li>
+                                <li>• GND 接 <span class="text-gray-400">GND</span></li>
+                                <li>• DIN / Data 接 <span class="text-cyan-400 font-semibold">GPIO26</span></li>
                             </ul>
                         </div>
                     </div>
@@ -256,31 +266,31 @@
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-4">
                 <div>
                     <h3 class="font-orbitron font-semibold text-base text-white flex items-center space-x-2">
-                        <i class="fa-solid fa-code text-cyan-400"></i>
-                        <span>ESP32 Arduino 完整控制程式碼</span>
+                        <i class="fa-solid fa-code text-pink-400"></i>
+                        <span>ESP32 Arduino WS2812 控制程式碼</span>
                     </h3>
-                    <p class="text-xs text-gray-400 mt-1">相容於最新 ESP32 Arduino Core v3.x 韌體，具備序列埠即時回報功能。</p>
+                    <p class="text-xs text-gray-400 mt-1">使用 Adafruit_NeoPixel 函式庫控制 GPIO26 上的 3 顆 WS2812 燈珠。</p>
                 </div>
-                <button onclick="copyCode()" class="flex items-center space-x-2 px-4 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-cyan-400 border border-cyan-500/30 text-xs font-medium transition-all">
+                <button onclick="copyCode()" class="flex items-center space-x-2 px-4 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-pink-400 border border-pink-500/30 text-xs font-medium transition-all">
                     <i class="fa-regular fa-copy"></i>
                     <span id="copyBtnText">一鍵複製程式碼</span>
                 </button>
             </div>
             <div class="relative bg-[#05070d] border border-gray-800 rounded-xl p-4 overflow-x-auto">
-                <pre id="arduinoCode" class="text-xs font-mono text-cyan-300 leading-relaxed"><code>const int LDR_PIN = 39;     // 光感測器輸入 (ADC1_CH3)
-const int POT_PIN = 34;     // 可變電阻輸入 (ADC1_CH6)
-const int LED_PIN = 12;     // LED 輸出 (PWM)
+                <pre id="arduinoCode" class="text-xs font-mono text-pink-300 leading-relaxed"><code>#include &lt;Adafruit_NeoPixel.h&gt;
 
-// 設定 LEDC PWM 參數 (ESP32 Arduino Core v3.x 寫法)
-const int freq = 5000;      // 頻率 5 kHz
-const int resolution = 8;   // 解析度 8-bit (0-255)
-const int ledChannel = 0;   // 通道
+const int LDR_PIN = 39;     // 光感測器輸入 (ADC1_CH3)
+const int POT_PIN = 34;     // 可變電阻輸入 (ADC1_CH6)
+const int LED_PIN = 26;     // WS2812 資料接腳 (GPIO26)
+const int NUM_LEDS = 3;     // 燈珠數量：3 顆
+
+// 初始化 NeoPixel 燈條物件
+Adafruit_NeoPixel strip(NUM_LEDS, LED_PIN, NEO_GRB + NEO_KHZ800);
 
 void setup() {
   Serial.begin(115200);
-
-  // 初始化 PWM 設定
-  ledcAttachChannel(LED_PIN, freq, resolution, ledChannel);
+  strip.begin();            // 初始化燈條
+  strip.show();             // 關閉所有燈光初始化
 }
 
 void loop() {
@@ -288,14 +298,17 @@ void loop() {
   int ldrValue = analogRead(LDR_PIN);
   int potValue = analogRead(POT_PIN);
 
-  // 2. 映射邏輯：環境越暗 (LDR 越小)，LED 亮度越大 (PWM 越大)
-  int ledBrightness = map(ldrValue, 0, 4095, 255, 0);
-  
-  // 限制數值在 0 到 255 之間
-  ledBrightness = constrain(ledBrightness, 0, 255);
+  // 2. 映射邏輯：環境越暗 (LDR 越小)，WS2812 亮度越大 (0-255)
+  int brightness = map(ldrValue, 0, 4095, 255, 0);
+  brightness = constrain(brightness, 0, 255);
 
-  // 3. 輸出 PWM 控制 LED 亮度
-  ledcWrite(LED_PIN, ledBrightness);
+  strip.setBrightness(brightness); // 設定整體亮度
+
+  // 3. 設定 3 顆燈珠呈現炫彩顏色 (RGB 變化)
+  strip.setPixelColor(0, strip.Color(255, 50, 150));   // 燈珠 1: 粉紅
+  strip.setPixelColor(1, strip.Color(100, 50, 255));   // 燈珠 2: 紫藍
+  strip.setPixelColor(2, strip.Color(0, 220, 255));    // 燈珠 3: 青綠
+  strip.show();
 
   // 4. JSON 格式輸出至序列埠（方便網頁 WebSerial 讀取）
   Serial.print("{\"ldr\":");
@@ -303,7 +316,7 @@ void loop() {
   Serial.print(",\"pot\":");
   Serial.print(potValue);
   Serial.print(",\"led\":");
-  Serial.print(ledBrightness);
+  Serial.print(brightness);
   Serial.println("}");
 
   delay(100);
@@ -315,22 +328,20 @@ void loop() {
 
     <footer class="border-t border-gray-800 bg-cardBg py-6 mt-12">
         <div class="max-w-7xl mx-auto px-4 text-center text-xs text-gray-500">
-            <p>ESP32 IoT Intelligent Light Control Dashboard &copy; 2026 | Built with Tailwind CSS & WebSerial API</p>
+            <p>ESP32 WS2812 Intelligent Light Control Dashboard &copy; 2026 | Built with Tailwind CSS & WebSerial API</p>
         </div>
     </footer>
 
     <!-- Custom Message Box Notification -->
-    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-cyan-950 border border-cyan-500 text-cyan-200 px-5 py-3 rounded-xl shadow-neon flex items-center space-x-3 text-sm">
-        <i class="fa-solid fa-circle-check text-cyan-400"></i>
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-pink-950 border border-pink-500 text-pink-200 px-5 py-3 rounded-xl shadow-lg flex items-center space-x-3 text-sm">
+        <i class="fa-solid fa-circle-check text-pink-400"></i>
         <span id="toastMsg">操作成功</span>
     </div>
 
     <script>
-        // Global variables for Chart & Simulation
         let chart;
         let isSerialConnected = false;
         let port, reader, inputStream, readableStreamClosed;
-        let simulatedTimer = null;
 
         // Initialize Chart.js
         function initChart() {
@@ -343,8 +354,8 @@ void loop() {
                         {
                             label: 'LDR (GPIO39)',
                             data: Array(20).fill(2048),
-                            borderColor: '#06b6d4',
-                            backgroundColor: 'rgba(6, 182, 212, 0.1)',
+                            borderColor: '#ec4899',
+                            backgroundColor: 'rgba(236, 72, 153, 0.1)',
                             borderWidth: 2,
                             tension: 0.3,
                             fill: true,
@@ -360,9 +371,9 @@ void loop() {
                             pointRadius: 2
                         },
                         {
-                            label: 'LED PWM (GPIO12)',
+                            label: 'WS2812 亮度',
                             data: Array(20).fill(128),
-                            borderColor: '#f59e0b',
+                            borderColor: '#06b6d4',
                             backgroundColor: 'transparent',
                             borderWidth: 2,
                             tension: 0.3,
@@ -395,34 +406,42 @@ void loop() {
 
         // Update Simulation Logic based on Sliders
         function updateSimulation() {
-            if (isSerialConnected) return; // Ignore manual sliders if connected to hardware
+            if (isSerialConnected) return;
 
             const ldrVal = parseInt(document.getElementById('ldrSlider').value);
             const potVal = parseInt(document.getElementById('potSlider').value);
 
-            // Calculation: Environment darker (lower LDR) -> Brighter LED (higher PWM)
-            // Map 0-4095 to 255-0
-            let ledVal = Math.round(((4095 - ldrVal) / 4095) * 255);
-            ledVal = Math.max(0, Math.min(255, ledVal));
+            // Calculation: Environment darker (lower LDR) -> Brighter WS2812 (higher brightness 0-255)
+            let brightness = Math.round(((4095 - ldrVal) / 4095) * 255);
+            brightness = Math.max(0, Math.min(255, brightness));
 
             // Update UI Texts
             document.getElementById('ldrValText').innerText = ldrVal;
             document.getElementById('potValText').innerText = potVal;
-            document.getElementById('pwmValText').innerText = ledVal;
+            document.getElementById('pwmValText').innerText = `亮度: ${brightness}/255`;
             document.getElementById('statLdr').innerText = ldrVal;
             document.getElementById('statPot').innerText = potVal;
 
-            // Update LED Orb Glow Effect
-            const orb = document.getElementById('ledPreviewOrb');
-            const intensity = ledVal / 255;
-            orb.style.backgroundColor = `rgba(245, 158, 11, ${0.1 + intensity * 0.7})`;
-            orb.style.boxShadow = `0 0 ${10 + intensity * 35}px rgba(245, 158, 11, ${0.3 + intensity * 0.7})`;
+            // Update WS2812 3-LED preview colors & glow
+            const intensity = brightness / 255;
+            
+            const led0 = document.getElementById('wsLed0');
+            const led1 = document.getElementById('wsLed1');
+            const led2 = document.getElementById('wsLed2');
 
-            // Update Chart
-            addDataToChart(ldrVal, potVal, ledVal);
+            led0.style.backgroundColor = `rgba(255, 50, 150, ${0.15 + intensity * 0.85})`;
+            led0.style.boxShadow = `0 0 ${8 + intensity * 25}px rgba(255, 50, 150, ${intensity})`;
+
+            led1.style.backgroundColor = `rgba(100, 50, 255, ${0.15 + intensity * 0.85})`;
+            led1.style.boxShadow = `0 0 ${8 + intensity * 25}px rgba(100, 50, 255, ${intensity})`;
+
+            led2.style.backgroundColor = `rgba(0, 220, 255, ${0.15 + intensity * 0.85})`;
+            led2.style.boxShadow = `0 0 ${8 + intensity * 25}px rgba(0, 220, 255, ${intensity})`;
+
+            addDataToChart(ldrVal, potVal, brightness);
         }
 
-        function addDataToChart(ldr, pot, led) {
+        function addDataToChart(ldr, pot, brightness) {
             if (!chart) return;
             chart.data.labels.push('');
             if (chart.data.labels.length > 20) {
@@ -431,14 +450,13 @@ void loop() {
                 chart.data.datasets[1].data.shift();
                 chart.data.datasets[2].data.shift();
             }
-            // Scale LED (0-255) up to fit chart scale (0-4095) proportionally for visualization
             chart.data.datasets[0].data.push(ldr);
             chart.data.datasets[1].data.push(pot);
-            chart.data.datasets[2].data.push(led * 16); // 255 * 16 = 4080
+            chart.data.datasets[2].data.push(brightness * 16); // Scale to 4095
             chart.update('none');
         }
 
-        // WebSerial API Integration for real hardware communication
+        // WebSerial API Integration
         async function toggleSerialConnection() {
             if (!('serial' in navigator)) {
                 showToast("您的瀏覽器不支援 WebSerial API，請使用 Google Chrome 或 Edge。");
@@ -452,7 +470,7 @@ void loop() {
 
                     isSerialConnected = true;
                     document.getElementById('serialBtnText').innerText = "斷開硬體連線";
-                    document.getElementById('connectSerialBtn').classList.remove('bg-cyan-600', 'hover:bg-cyan-500');
+                    document.getElementById('connectSerialBtn').classList.remove('bg-pink-600', 'hover:bg-pink-500');
                     document.getElementById('connectSerialBtn').classList.add('bg-red-600', 'hover:bg-red-500');
                     
                     const statusEl = document.getElementById('connectionStatus');
@@ -483,7 +501,7 @@ void loop() {
                 isSerialConnected = false;
                 document.getElementById('serialBtnText').innerText = "連線硬體 (WebSerial)";
                 document.getElementById('connectSerialBtn').classList.remove('bg-red-600', 'hover:bg-red-500');
-                document.getElementById('connectSerialBtn').classList.add('bg-cyan-600', 'hover:bg-cyan-500');
+                document.getElementById('connectSerialBtn').classList.add('bg-pink-600', 'hover:bg-pink-500');
 
                 const statusEl = document.getElementById('connectionStatus');
                 statusEl.className = "flex items-center space-x-2 px-3 py-1.5 rounded-full bg-red-950/50 border border-red-800 text-red-400 text-xs";
@@ -509,7 +527,7 @@ void loop() {
                     if (done) break;
                     buffer += value;
                     let lines = buffer.split("\n");
-                    buffer = lines.pop(); // keep last incomplete line
+                    buffer = lines.pop();
 
                     for (let line of lines) {
                         line = line.trim();
@@ -517,9 +535,7 @@ void loop() {
                             try {
                                 const data = JSON.parse(line);
                                 updateHardwareUI(data.ldr, data.pot, data.led);
-                            } catch (e) {
-                                // JSON parse error ignored
-                            }
+                            } catch (e) {}
                         }
                     }
                 }
@@ -528,24 +544,31 @@ void loop() {
             }
         }
 
-        function updateHardwareUI(ldr, pot, led) {
+        function updateHardwareUI(ldr, pot, brightness) {
             document.getElementById('ldrValText').innerText = ldr;
             document.getElementById('potValText').innerText = pot;
-            document.getElementById('pwmValText').innerText = led;
+            document.getElementById('pwmValText').innerText = `亮度: ${brightness}/255`;
             document.getElementById('statLdr').innerText = ldr;
             document.getElementById('statPot').innerText = pot;
 
-            // Sync sliders
             document.getElementById('ldrSlider').value = ldr;
             document.getElementById('potSlider').value = pot;
 
-            // LED Orb Effect
-            const orb = document.getElementById('ledPreviewOrb');
-            const intensity = led / 255;
-            orb.style.backgroundColor = `rgba(245, 158, 11, ${0.1 + intensity * 0.7})`;
-            orb.style.boxShadow = `0 0 ${10 + intensity * 35}px rgba(245, 158, 11, ${0.3 + intensity * 0.7})`;
+            const intensity = brightness / 255;
+            const led0 = document.getElementById('wsLed0');
+            const led1 = document.getElementById('wsLed1');
+            const led2 = document.getElementById('wsLed2');
 
-            addDataToChart(ldr, pot, led);
+            led0.style.backgroundColor = `rgba(255, 50, 150, ${0.15 + intensity * 0.85})`;
+            led0.style.boxShadow = `0 0 ${8 + intensity * 25}px rgba(255, 50, 150, ${intensity})`;
+
+            led1.style.backgroundColor = `rgba(100, 50, 255, ${0.15 + intensity * 0.85})`;
+            led1.style.boxShadow = `0 0 ${8 + intensity * 25}px rgba(100, 50, 255, ${intensity})`;
+
+            led2.style.backgroundColor = `rgba(0, 220, 255, ${0.15 + intensity * 0.85})`;
+            led2.style.boxShadow = `0 0 ${8 + intensity * 25}px rgba(0, 220, 255, ${intensity})`;
+
+            addDataToChart(ldr, pot, brightness);
         }
 
         // Copy Arduino Code
@@ -564,7 +587,6 @@ void loop() {
             document.body.removeChild(textArea);
         }
 
-        // Toast Notification Helper
         function showToast(msg) {
             const toast = document.getElementById('toast');
             document.getElementById('toastMsg').innerText = msg;
@@ -574,7 +596,6 @@ void loop() {
             }, 3000);
         }
 
-        // Initialize on load
         window.onload = function() {
             initChart();
             updateSimulation();
